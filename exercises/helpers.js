@@ -1,4 +1,10 @@
-const operations = ['add', 'substract', 'multiply', 'divide'];
-const isNumeric = (value) => typeof value === 'string' && !isNaN(value) && !isNaN(parseFloat(value));
+const { calcOperations } = require('./calcOperations');
 
-module.exports = { operations, isNumeric };
+const isNumeric = (value) =>
+    typeof value === 'string' && !isNaN(value) && !isNaN(parseFloat(value));
+
+const validateParameters = (firstNumber, secondNumber, operation) => {
+    return !isNumeric(firstNumber) || !isNumeric(secondNumber) || !(operation in calcOperations);
+};
+
+module.exports = { validateParameters };
