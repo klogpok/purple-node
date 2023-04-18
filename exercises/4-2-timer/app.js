@@ -1,20 +1,39 @@
+const [, , ...args] = process.argv;
 
-const [ , , ...args ] = process.argv;
+const periods = {
+    h: { secondsInPeriod: 3600, limit: 240 },
+    m: { secondsInPeriod: 60, limit: 60 },
+    s: { secondsInPeriod: 1, limit: 60 },
+};
 
 const convertInputToSeconds = (args) => {
-    let step = 3600;
+    return args.reduce((acc, current) => {
+        let periodPrefix = current.slice(-1);
+        return parseInt(current) * periods[periodPrefix].secondsInPeriod;
+    }, 0);
+};
 
-    return args.reduce((prev, current) => {
-        prev += step * parseInt(current);
-        step /= 60;
-        return prev; 
-    }, 0) * 1000;
-}
+// If some arg is invalid returns false
+const isValidInput = (args) => {
+    return args.some((arg) => {
+        let periodPrefix = arg.slice(-1);
+        let periodValue = arg.substring(0, arg.length - 1);
+        return (
+            !(periodPrefix in periods) ||
+            !isNumeric(periodValue) ||
+            validatePeriodLimit(periodPrefix, periodValue)
+        );
+    });
+};
 
-if (args.length !== 3) {
-    console.log('Incorrect parameters! Please try again.');
+const validatePeriodLimit = (periodPrefix, periodValue) =>
+    periodValue < 0 && periodValue > periods[periodPrefix].limit;
+
+const isNumeric = (value) => typeof value === 'string' && !isNaN(value) && !isNaN(parseInt(value));
+
+if (isValidInput(args)) {
+    console.log('Incorrect parameters! Please keep to format: [h m s]');
 } else {
-    console.log('Timer started...')
-    setTimeout(() => console.log('Timer finished'), convertInputToSeconds(args));
+    console.log('Timer started...');
+    setTimeout(() => console.log('Timer finished'), convertInputToSeconds(args) * 1000);
 }
-
